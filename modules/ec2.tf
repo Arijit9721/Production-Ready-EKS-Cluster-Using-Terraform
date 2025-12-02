@@ -16,7 +16,7 @@ resource "local_file" "main-key-private-key" {
   content = tls_private_key.rsa_key.private_key_pem
   filename = "id_rsa_key"
   provisioner "local-exec" {
-    command = "chmod 600 id_rsa_key"
+    command = "chmod 400 id_rsa_key"
   }
 }
 
@@ -27,7 +27,8 @@ resource "aws_instance" "Jump-Server" {
   key_name      = aws_key_pair.main-key.key_name
   subnet_id     = aws_subnet.public-subnets[1].id
   vpc_security_group_ids = [ aws_security_group.jump-server-sg.id ]
-  associate_public_ip_address = true 
+  associate_public_ip_address = true
+  iam_instance_profile = aws_iam_instance_profile.jump-server-instance-profile.name
 
   root_block_device {
    volume_size = var.jump_server_disk_size

@@ -2,7 +2,7 @@
 # public subnets for the vpc
 resource "aws_subnet" "public-subnets" {
   count = var.pub-sub-count
-  vpc_id = aws_vpc.main-vpc.owner_id
+  vpc_id = aws_vpc.main-vpc.id
   cidr_block = element(var.pub-sub-block, count.index)
   availability_zone = element(var.azs, count.index)
   map_public_ip_on_launch = true
@@ -19,7 +19,7 @@ resource "aws_subnet" "public-subnets" {
 # private subnets for the vpc
 resource "aws_subnet" "private-subnets" {
   count = var.pri-sub-count
-  vpc_id = aws_vpc.main-vpc.owner_id
+  vpc_id = aws_vpc.main-vpc.id
   cidr_block = element(var.pri-sub-block, count.index)
   availability_zone = element(var.azs, count.index)
   map_public_ip_on_launch = false

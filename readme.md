@@ -18,11 +18,7 @@ This project focuses _only_ on the infrastructure layer, creating a secure envir
 4.  **Cost Efficiency:** Utilizing a mix of On-Demand and Spot instances for worker nodes.
     
 
-## 📐 Architecture Diagram
-
-This template follows the principle of least privilege, ensuring the EKS worker nodes are fully contained within private subnets. All administrative access is routed securely.
-
-### Architectural Components
+## 📐 Architecture Components
 
 **VPC**
 

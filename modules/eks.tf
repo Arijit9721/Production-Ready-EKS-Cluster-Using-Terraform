@@ -11,7 +11,7 @@ resource "aws_eks_cluster" "eks-cluster" {
 
   vpc_config {
     subnet_ids = [
-      aws__subnet.private-subnets[0].id,
+      aws_subnet.private-subnets[0].id,
       aws_subnet.private-subnets[1].id
     ]
     endpoint_private_access = var.endpoint_private_access
@@ -21,7 +21,7 @@ resource "aws_eks_cluster" "eks-cluster" {
 
   depends_on = [
     aws_iam_role_policy_attachment.eks_cluster_policy,
-    aws_iam_role_policy_attachment.eks_AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.eks-AmazonEKSWorkerNodePolicy
   ]
 
     tags = {
@@ -41,7 +41,14 @@ resource "aws_iam_openid_connect_provider" "eks_oidc" {
 resource "aws_launch_template" "ondemand-template" {
   name_prefix = "${local.cluster_name}-ondemand-node-"
   vpc_security_group_ids = [aws_security_group.eks-node_group-sg.id]
-  instance_type = var.instance_type[0] # this is just the default value, the full list is passed in the node group
+  instance_type = var.ondemand_instance_types[0] # this is just the default value, the full list is passed in the node group
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size = var.disk_size
+      volume_type = "gp3"
+    }
+  }
 }
 
 # Ondemand Node Group
@@ -52,8 +59,7 @@ resource "aws_eks_node_group" "ondemand-node" {
   subnet_ids      = [aws_subnet.private-subnets[0].id, aws_subnet.private-subnets[1].id]
   instance_types  = var.ondemand_instance_types
   capacity_type = "ON_DEMAND"
-  disk_size = var.disk_size
-
+  
   scaling_config {
     desired_size = var.ondemand_desired_capacity
     max_size     = var.ondemand_max_size
@@ -92,7 +98,14 @@ resource "aws_eks_node_group" "ondemand-node" {
 resource "aws_launch_template" "spot-template" {
   name_prefix = "${local.cluster_name}-spot-node-"
   vpc_security_group_ids = [aws_security_group.eks-node_group-sg.id]
-  instance_type = var.instance_type[0] # this is just the default value, the full list is passed in the node group
+  instance_type = var.spot_instance_types[0] # this is just the default value, the full list is passed in the node group
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size = var.disk_size
+      volume_type = "gp3"
+    }
+  }
 }
 
 # Spot Node Group
@@ -103,7 +116,6 @@ resource "aws_eks_node_group" "spot-node" {
   subnet_ids      = [aws_subnet.private-subnets[0].id, aws_subnet.private-subnets[1].id]
   instance_types  = var.spot_instance_types
   capacity_type = "SPOT"
-  disk_size = var.disk_size
   
   scaling_config {
     desired_size = var.spot_desired_capacity

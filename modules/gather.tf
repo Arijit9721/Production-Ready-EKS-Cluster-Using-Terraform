@@ -1,7 +1,7 @@
 
 # gathering the tls cert for IRSA
 data "tls_certificate" "eks_cert" {
-  url = aws_eks_cluster.eks[0].identity[0].oidc[0].issuer
+  url = aws_eks_cluster.eks-cluster[0].identity[0].oidc[0].issuer
 }
 
 # the iam policy document for the eks oidc provider
