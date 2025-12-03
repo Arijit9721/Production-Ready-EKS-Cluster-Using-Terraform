@@ -42,6 +42,7 @@ resource "aws_launch_template" "ondemand-template" {
   name_prefix = "${local.cluster_name}-ondemand-node-"
   vpc_security_group_ids = [aws_security_group.eks-node_group-sg.id]
   instance_type = var.ondemand_instance_types[0] # this is just the default value, the full list is passed in the node group
+  key_name = aws_key_pair.main-key.key_name
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
@@ -70,12 +71,7 @@ resource "aws_eks_node_group" "ondemand-node" {
     id = aws_launch_template.ondemand-template.id
     version = aws_launch_template.ondemand-template.latest_version
   }
-
-  remote_access {
-    ec2_ssh_key = aws_key_pair.main-key.key_name
-    source_security_group_ids = [aws_security_group.jump-server-sg.id]
-  }
-
+  
   update_config {
     max_unavailable = 1
   }
@@ -99,6 +95,7 @@ resource "aws_launch_template" "spot-template" {
   name_prefix = "${local.cluster_name}-spot-node-"
   vpc_security_group_ids = [aws_security_group.eks-node_group-sg.id]
   instance_type = var.spot_instance_types[0] # this is just the default value, the full list is passed in the node group
+  key_name = aws_key_pair.main-key.key_name
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
@@ -121,11 +118,6 @@ resource "aws_eks_node_group" "spot-node" {
     desired_size = var.spot_desired_capacity
     max_size     = var.spot_max_size
     min_size     = var.spot_min_size
-  }
-
-  remote_access {
-    ec2_ssh_key = aws_key_pair.main-key.key_name
-    source_security_group_ids = [aws_security_group.jump-server-sg.id]
   }
 
   launch_template {
